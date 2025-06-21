@@ -1,10 +1,29 @@
+/* eslint-disable @typescript-eslint/indent */
 import React from 'react';
+import classNames from 'classnames';
 import { StatusFilter } from '../types/StatusFilter';
 
 type Props = {
   filter: StatusFilter;
   setFilter: (value: StatusFilter) => void;
   activeCount: number;
+};
+
+const FILTER_LINKS: Record<
+  StatusFilter,
+  { label: string; href: string; cy: string }
+> = {
+  [StatusFilter.All]: { label: 'All', href: '#/', cy: 'FilterLinkAll' },
+  [StatusFilter.Active]: {
+    label: 'Active',
+    href: '#/active',
+    cy: 'FilterLinkActive',
+  },
+  [StatusFilter.Completed]: {
+    label: 'Completed',
+    href: '#/completed',
+    cy: 'FilterLinkCompleted',
+  },
 };
 
 export const Footer: React.FC<Props> = ({ filter, setFilter, activeCount }) => {
@@ -14,46 +33,24 @@ export const Footer: React.FC<Props> = ({ filter, setFilter, activeCount }) => {
         {activeCount} items left
       </span>
 
-      {/* Active link should have the 'selected' class */}
       <nav className="filter" data-cy="Filter">
-        <a
-          href="#/"
-          className={`filter__link ${filter === 'all' ? 'selected' : ''}`}
-          data-cy="FilterLinkAll"
-          onClick={e => {
-            e.preventDefault();
-            setFilter(StatusFilter.All);
-          }}
-        >
-          All
-        </a>
-
-        <a
-          href="#/active"
-          className={`filter__link ${filter === 'active' ? 'selected' : ''}`}
-          data-cy="FilterLinkActive"
-          onClick={e => {
-            e.preventDefault();
-            setFilter(StatusFilter.Active);
-          }}
-        >
-          Active
-        </a>
-
-        <a
-          href="#/completed"
-          className={`filter__link ${filter === 'completed' ? 'selected' : ''}`}
-          data-cy="FilterLinkCompleted"
-          onClick={e => {
-            e.preventDefault();
-            setFilter(StatusFilter.Completed);
-          }}
-        >
-          Completed
-        </a>
+        {Object.values(StatusFilter).map(status => (
+          <a
+            key={status}
+            href={FILTER_LINKS[status].href}
+            className={classNames('filter__link', {
+              selected: filter === status,
+            })}
+            data-cy={FILTER_LINKS[status].cy}
+            onClick={() => {
+              setFilter(status);
+            }}
+          >
+            {FILTER_LINKS[status].label}
+          </a>
+        ))}
       </nav>
 
-      {/* this button should be disabled if there are no completed todos */}
       <button
         type="button"
         className="todoapp__clear-completed"

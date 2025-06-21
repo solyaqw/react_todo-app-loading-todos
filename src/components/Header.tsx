@@ -1,16 +1,21 @@
 import React from 'react';
+import classNames from 'classnames';
 
-export const Header: React.FC = () => {
+type Props = {
+  areAllCompleted: boolean;
+};
+
+export const Header: React.FC<Props> = ({ areAllCompleted }) => {
   return (
     <header className="todoapp__header">
-      {/* this button should have `active` class only if all todos are completed */}
       <button
         type="button"
-        className="todoapp__toggle-all active"
+        className={classNames('todoapp__toggle-all', {
+          active: areAllCompleted,
+        })}
         data-cy="ToggleAllButton"
       />
 
-      {/* Add a todo on form submit */}
       <form>
         <input
           data-cy="NewTodoField"

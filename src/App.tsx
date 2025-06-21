@@ -1,6 +1,5 @@
-/* eslint-disable jsx-a11y/label-has-associated-control */
-/* eslint-disable jsx-a11y/control-has-associated-label */
 import React, { useEffect, useState } from 'react';
+import classNames from 'classnames';
 import { UserWarning } from './UserWarning';
 import { getTodos, USER_ID } from './api/todos';
 import { Todo } from './types/Todo';
@@ -11,7 +10,6 @@ import { Header } from './components/Header';
 
 export const App: React.FC = () => {
   const [todos, setTodos] = useState<Todo[]>([]);
-  const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
   const [filter, setFilter] = useState<StatusFilter>(StatusFilter.All);
 
@@ -30,35 +28,32 @@ export const App: React.FC = () => {
   useEffect(() => {
     getTodos()
       .then(setTodos)
-      .catch(() => setError('Unable to load todos'))
-      .finally(() => setLoading(false));
+      .catch(() => setError('Unable to load todos'));
   }, []);
 
   useEffect(() => {
-    if (error) {
-      const timer = setTimeout(() => setError(''), 3000);
-
-      return () => clearTimeout(timer);
+    if (!error) {
+      return;
     }
 
-    return undefined;
+    const timer = setTimeout(() => setError(''), 3000);
+
+    return () => clearTimeout(timer);
   }, [error]);
 
   if (!USER_ID) {
     return <UserWarning />;
   }
 
-  if (loading) {
-    return <div>Loading...</div>;
-  }
-
   const shouldShowMain = todos.length > 0;
+  const areAllCompleted =
+    todos.length > 0 && todos.every(todo => todo.completed);
 
   return (
     <div className="todoapp">
       <h1 className="todoapp__title">todos</h1>
       <div className="todoapp__content">
-        <Header />
+        <Header areAllCompleted={areAllCompleted} />
 
         {shouldShowMain && <TodoList todos={filteredTodos} />}
         {shouldShowMain && (
@@ -72,7 +67,13 @@ export const App: React.FC = () => {
 
       <div
         data-cy="ErrorNotification"
-        className={`notification is-danger is-light has-text-weight-normal ${!error ? 'hidden' : ''}`}
+        className={classNames(
+          'notification',
+          'is-danger',
+          'is-light',
+          'has-text-weight-normal',
+          { hidden: !error },
+        )}
       >
         <button
           data-cy="HideErrorButton"
